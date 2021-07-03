@@ -191,7 +191,7 @@ function roundDec(num, dec) {
 function getCoords(pos) {
     //Zanim powiesz coś o następnych 3 linijkach kodu spróbuj zrobić to samemu lepiej, bo męczyłem się 2 godziny, żeby to gówno w ogóle zadziałało i liczyło w miarę dokładnie.
     let p = L.Projection.Mercator.project(pos);
-    let x = roundDec((2296687 - p.x)/1.58,1);
+    let x = roundDec((p.x - 2296687)/1.58,1);
     let y = roundDec((6565452 - p.y)/1.58,1);
     return {x: x, y: y}
 }
