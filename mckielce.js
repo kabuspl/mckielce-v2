@@ -2,9 +2,7 @@ let action="";
 let map;
 let btns;
 let markers;
-let polyline=L.polygon([], {
-    color: "red"
-})
+let polyline;
 
 let greenIcon = new L.Icon({
     iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
@@ -16,6 +14,24 @@ let greenIcon = new L.Icon({
 });
 
 window.onload = function() {
+    polyline=document.querySelector("#poly").checked ? L.polyline([], {
+        color: "red"
+    }) : L.polygon([], {
+        color: "red"
+    });
+    document.querySelector("#poly").addEventListener("change", (e) => {
+        polyline.remove();
+        polyline=document.querySelector("#poly").checked ? L.polyline([], {
+            color: "red"
+        }) : L.polygon([], {
+            color: "red"
+        });
+        polyline.addTo(map);
+        refreshPolyline();
+    });
+    document.querySelector("#results").addEventListener("change", (e) => {
+        refreshResult();
+    });
     btns = {
         addMarker: L.easyButton({
             states: [
@@ -66,10 +82,29 @@ window.onload = function() {
         })
     };
     map = L.map("map").setView([50.87161, 20.63157], 13);
-    L.tileLayer("https://4d.kielce.eu/Data/u_2019/ORTO/{z}/{x}/{y}.jpg", {
+    let kielce19 = L.tileLayer("https://4d.kielce.eu/Data/u_2019/ORTO/{z}/{x}/{y}.jpg", {
         attribution: "Ortofotomapa 2019 &copy; Miasto Kielce",
         "maxZoom": 22,
+        detectRetina: true
     }).addTo(map);
+    //https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORTO/REST/StandardResolution/tile/11/385/380
+    let geoportal = L.tileLayer.wms("https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORTO/WMS/StandardResolution?", {
+        attribution: "&copy; geoportal.gov.pl",
+        "maxZoom": 22,
+        layers: 'Raster',
+        detectRetina: true
+    })
+    let osm = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "&copy; OpenStreetMap",
+        "maxZoom": 22,
+        detectRetina: true
+    })
+    let baseMaps = {
+        "Kielce 2019": kielce19,
+        "Geoportal.gov.pl": geoportal,
+        "OpenStreetMap": osm
+    };
+    L.control.layers(baseMaps).addTo(map);
     L.easyBar([btns.addMarker,btns.addLine]).addTo(map);
     markers=L.layerGroup().addTo(map);
     polyline.addTo(map);
@@ -78,22 +113,43 @@ window.onload = function() {
     let one = L.Projection.Mercator.project(new L.latLng(50.88799,20.65376));
     console.log(one);
     console.log(L.Projection.Mercator.unproject(one));
+    document.querySelector(".showSidebar").addEventListener("click", function() {
+        if(document.querySelector("aside").classList.contains("open")) {
+            document.querySelector("aside").classList.remove("open");
+        }else{
+            document.querySelector("aside").classList.add("open");
+        }
+    });
+}
+
+function addResult(text) {
+    let container = document.querySelector("#output");
+    let result = document.createElement("div");
+    result.classList.add("result");
+    result.appendChild(document.createTextNode(text));
+    container.appendChild(result);
 }
 
 function resolveAction(e) {
     switch(action) {
         case "addMarker":
             markers.clearLayers();
-            markers.addLayer(L.marker(e.latlng,{
+            let marker1 = L.marker(e.latlng,{
                 draggable: true
-            }));
+            });
+            marker1.on("drag", function(e) {
+                refreshResult();
+            });
+            markers.addLayer(marker1);
             btns.addMarker.state("normal");
             action="";
+            refreshResult();
             break;
         case "addLine":
             markers.eachLayer(function(l) {
                 l.setIcon(new L.Icon.Default());
             })
+            console.log(e.latlng);
             let marker=L.marker(e.latlng,{
                 draggable: true,
                 icon: greenIcon,
@@ -120,8 +176,43 @@ function resolveAction(e) {
 }
 
 function refreshPolyline() {
+    refreshResult();
     polyline.setLatLngs([]);
     markers.eachLayer(function(l) {
         polyline.addLatLng(l._latlng);
+    });
+}
+
+function roundDec(num, dec) {
+    //return Math.round((num+Number.EPSILON)*Math.pow(10,dec))/Math.pow(10,dec);
+    return num.toFixed(dec);
+}
+
+function getCoords(pos) {
+    //Zanim powiesz coś o następnych 3 linijkach kodu spróbuj zrobić to samemu lepiej, bo męczyłem się 2 godziny, żeby to gówno w ogóle zadziałało i liczyło w miarę dokładnie.
+    let p = L.Projection.Mercator.project(pos);
+    let x = roundDec((2296687 - p.x)/1.58,1);
+    let y = roundDec((6565452 - p.y)/1.58,1);
+    return {x: x, y: y}
+}
+
+function refreshResult() {
+    //let old = new L.latLng(0,0);
+    document.querySelector("#output").innerHTML="";
+    markers.eachLayer(function(l) {
+        let coords = getCoords(l._latlng);
+        /* niech to tu zostanie na pamiątkę
+        let kurwa=old.distanceTo(l._latlng)
+        console.log("KURWA",kurwa);
+        let ಠ_ಠ1=Math.abs(getCoords(old).x-getCoords(l._latlng).x)
+        let ಠ_ಠ2=Math.abs(getCoords(old).y-getCoords(l._latlng).y);
+        console.log("MAĆ",ಠ_ಠ1,ಠ_ಠ2)
+        let ಠvಠ1=ಠ_ಠ1/kurwa;
+        let ಠvಠ2=ಠ_ಠ2/kurwa;
+        console.log("CHUUUUJ", ಠvಠ1,ಠvಠ2)
+        old=l._latlng;
+        */
+        
+        addResult(document.querySelector("#results").checked ? "x: "+coords.x+" y: "+coords.y : "/tp "+coords.x+" 60 "+coords.y );
     });
 }

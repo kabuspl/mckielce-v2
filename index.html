@@ -19,10 +19,20 @@
     <script src="mckielce.js"></script>
 </head>
 <body>
-    <header>
-        <h1>Minecraft Kielce</h1>
-        <h2>Konwerter projekcji</h2>
-    </header>
+    <aside>
+        <section class="sidebar">
+            <h1>Minecraft Kielce</h1>
+            <h2>Ustawienia</h2>
+            <label><input type="checkbox" id="poly">Użyj linii zamiast obszaru</label><br>
+            <label><input type="checkbox" id="results">Podaj wyniki w formie X/Y</label>
+            <h2>Wyniki</h2>
+            <div id="output">
+            </div>
+        </section>
+        <div class="showSidebar">
+            <i class="fas fa-chevron-right"></i>
+        </div>
+    </aside>
     <main>
         <div id="map"></div>
     </main>
