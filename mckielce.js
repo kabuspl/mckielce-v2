@@ -97,9 +97,9 @@ window.onload = function() {
         "maxZoom": 22,
         layers: 'Raster',
         detectRetina: true
-    })
+    });
     let osm = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: "&copy; OpenStreetMap",
+        attribution: "&copy; OpenStreetMap Contributors",
         "maxZoom": 22,
         detectRetina: true
     })
