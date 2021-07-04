@@ -13,6 +13,19 @@ let greenIcon = new L.Icon({
     shadowSize: [41, 41]
 });
 
+function findGetParameter(parameterName) {
+    var result = null,
+        tmp = [];
+    location.search
+        .substr(1)
+        .split("&")
+        .forEach(function (item) {
+          tmp = item.split("=");
+          if (tmp[0] === parameterName) result = decodeURIComponent(tmp[1]);
+        });
+    return result;
+}
+
 window.onload = function() {
     polyline=document.querySelector("#poly").checked ? L.polyline([], {
         color: "red"
@@ -35,6 +48,22 @@ window.onload = function() {
 
     document.querySelector(".copyjson").addEventListener("click",(e) =>{
         exportJSON();
+    });
+
+    document.querySelector("#calculate").addEventListener("click", (e) => {
+        if(action!="") {
+            alert("Wyłącz najpierw narzędzie.");
+            return;
+        }
+        document.querySelector("#output").innerHTML="";
+        let latlon = getLatLon({x:document.querySelector("#x").value,y:document.querySelector("#y").value});
+        addResult(latlon.lat+" "+latlon.lng);
+        markers.clearLayers();
+        let marker1 = L.marker(latlon,{
+            draggable: false
+        });
+        markers.addLayer(marker1);
+        map.setView(latlon,16)
     });
     btns = {
         addMarker: L.easyButton({
@@ -103,12 +132,20 @@ window.onload = function() {
         "maxZoom": 22,
         detectRetina: true
     })
+    let img = "mckielce04072021.png";
+    let bounds = [[50.79056176249292,20.5905944108963],[50.78481679439481,20.62001556158066]];
+    let ov = L.imageOverlay(img, bounds, {
+        opacity: .6
+    });
     let baseMaps = {
         "Kielce 2019": kielce19,
         "Geoportal.gov.pl": geoportal,
-        "OpenStreetMap": osm
+        "OpenStreetMap": osm,
     };
-    L.control.layers(baseMaps).addTo(map);
+    let overlayMaps = {
+        "Minecraft 04.07.2021 20:20": ov
+    }
+    L.control.layers(baseMaps,overlayMaps).addTo(map);
     L.easyBar([btns.addMarker,btns.addLine]).addTo(map);
     markers=L.layerGroup().addTo(map);
     polyline.addTo(map);
@@ -124,6 +161,11 @@ window.onload = function() {
             document.querySelector("aside").classList.add("open");
         }
     });
+    if (findGetParameter("x")!=undefined&&findGetParameter("y")!=undefined) {
+        document.querySelector("#x").value=findGetParameter("x");
+        document.querySelector("#y").value=findGetParameter("y");
+        document.querySelector("#calculate").click();
+    }
 }
 
 function addResult(text) {
@@ -220,6 +262,15 @@ function getCoords(pos) {
     let x = roundDec((p.x - 2296687)/1.58,1);
     let y = roundDec((6565452 - p.y)/1.58,1);
     return {x: x, y: y}
+}
+
+function getLatLon(coords) {
+    coords.x = (coords.x*1.58)+2296687
+    coords.y = 6565452-(coords.y*1.58);
+    let p = L.Projection.Mercator.unproject(coords);
+    //let x = roundDec((p.x - 2296687)/1.58,1);
+    //let y = roundDec((6565452 - p.y)/1.58,1);
+    return p;
 }
 
 function refreshResult() {
