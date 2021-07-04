@@ -32,6 +32,10 @@ window.onload = function() {
     document.querySelector("#results").addEventListener("change", (e) => {
         refreshResult();
     });
+
+    document.querySelector(".copyjson").addEventListener("click",(e) =>{
+        exportJSON();
+    });
     btns = {
         addMarker: L.easyButton({
             states: [
@@ -127,7 +131,29 @@ function addResult(text) {
     let result = document.createElement("div");
     result.classList.add("result");
     result.appendChild(document.createTextNode(text));
+    let copy = document.createElement("i");
+    copy.addEventListener("click", (e)=>{
+        navigator.clipboard.writeText(text);
+        if(!e.target.classList.contains("copied")) e.target.classList.add("copied");
+    })
+    copy.classList.add("far");
+    copy.classList.add("fa-copy");
+    result.appendChild(copy);
     container.appendChild(result);
+}
+
+function exportJSON() {
+    let base = {
+        "version": 1,
+        "coords": []
+    }
+    markers.eachLayer(function(l) {
+        let coords = getCoords(l._latlng);
+        base.coords.push(coords);
+    });
+    let json=JSON.stringify(base);
+    navigator.clipboard.writeText(btoa(json));
+    alert("Skopiowano");
 }
 
 function resolveAction(e) {
