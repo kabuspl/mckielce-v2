@@ -276,6 +276,7 @@ function getLatLon(coords) {
 function refreshResult() {
     //let old = new L.latLng(0,0);
     document.querySelector("#output").innerHTML="";
+    let ile=0;
     markers.eachLayer(function(l) {
         let coords = getCoords(l._latlng);
         /* niech to tu zostanie na pamiątkę
@@ -289,7 +290,12 @@ function refreshResult() {
         console.log("CHUUUUJ", ಠvಠ1,ಠvಠ2)
         old=l._latlng;
         */
-        
+        ile++;
         addResult(document.querySelector("#results").checked ? "x: "+coords.x+" y: "+coords.y : "/tp "+coords.x+" 60 "+coords.y );
     });
+    let msecs = 3000+600+100+100+(ile*900);
+    let mins = Math.floor(msecs/60000);
+    let secs = Math.floor(msecs/1000-mins*60);
+    let time = ("0"+mins).slice(-2)+":"+("0"+secs).slice(-2);
+    document.querySelector("#wyniki").textContent="Punkty: "+ile+", ETA: "+time;
 }

@@ -53,7 +53,19 @@ h2 {
     transition: ease-in-out .5s all;
 }
 
+footer {
+    position: absolute;
+    bottom: 10px;
+    text-align: center;
+    width: calc(100% - 20px);
+}
+
+a {
+    color: unset;
+}
+
 #output {
+    margin-top: 5px;
     width: 100%;
     box-sizing: border-box;
     height: 50%;
@@ -102,6 +114,7 @@ aside .sidebar {
     }
     aside .sidebar {
         opacity: 0;
+        transition: ease-in-out .5s;
     }
     .showSidebar {
         display: block;
