@@ -150,6 +150,12 @@ window.onload = function() {
     markers=L.layerGroup().addTo(map);
     polyline.addTo(map);
     map.on("click", resolveAction);
+    map.on("moveend", (e) => {
+        let bounds = map.getBounds();
+        let str= bounds._southWest.lat+","+bounds._southWest.lng+","+bounds._northEast.lat+","+bounds._northEast.lng;
+        let url = "https://integracja02.gugik.gov.pl/cgi-bin/KrajowaIntegracjaEwidencjiGruntow?REQUEST=GetMap&TRANSPARENT=TRUE&FORMAT=image%2Fpng&VERSION=1.3.0&LAYERS=dzialki&STYLES=&EXCEPTIONS=xml&BBOX="+str+"&CRS=EPSG:4326&WIDTH="+document.querySelector("#map").clientWidth+"&HEIGHT="+document.querySelector("#map").clientHeight+"&SERVICE=WMS";
+        document.querySelector(".mapoverlay img").src=url;
+    })
     console.log(new L.latLng(50.88799,20.65376));
     let one = L.Projection.Mercator.project(new L.latLng(50.88799,20.65376));
     console.log(one);
@@ -271,6 +277,11 @@ function getLatLon(coords) {
     //let x = roundDec((p.x - 2296687)/1.58,1);
     //let y = roundDec((6565452 - p.y)/1.58,1);
     return p;
+}
+
+function getCoords2(pos) {
+    let mod = new ModifiedAirocean();
+    return mod.fromGeo(pos.lat,pos.lng);
 }
 
 function refreshResult() {
