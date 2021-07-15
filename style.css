@@ -104,6 +104,11 @@ a {
     cursor: pointer;
 }
 
+.runjson {
+    margin-left: 5px;
+    cursor: pointer;
+}
+
 .result i {
     cursor: pointer;
     position: absolute;

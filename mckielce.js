@@ -50,6 +50,10 @@ window.onload = function() {
         exportJSON();
     });
 
+    document.querySelector(".runjson").addEventListener("click",(e) =>{
+        exportJSON2();
+    });
+
     document.querySelector("#calculate").addEventListener("click", (e) => {
         if(action!="") {
             alert("Wyłącz najpierw narzędzie.");
@@ -202,6 +206,24 @@ function exportJSON() {
     let json=JSON.stringify(base);
     navigator.clipboard.writeText(btoa(json));
     alert("Skopiowano");
+}
+
+function exportJSON2() {
+    let base = {
+        "version": 1,
+        "coords": []
+    }
+    markers.eachLayer(function(l) {
+        let coords = getCoords(l._latlng);
+        base.coords.push(coords);
+    });
+    let json=JSON.stringify(base);
+    let socket = new WebSocket("ws://127.0.0.1:2138");
+    socket.onopen = (e) => {
+        socket.send(btoa(json));
+        socket.close();
+    }
+    //navigator.clipboard.writeText(btoa(json));
 }
 
 function resolveAction(e) {
