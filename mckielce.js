@@ -125,7 +125,13 @@ window.onload = function() {
         detectRetina: true
     }).addTo(map);
     //https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORTO/REST/StandardResolution/tile/11/385/380
-    let geoportal = L.tileLayer.wms("https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORTO/WMS/StandardResolution?", {
+    let geoportal = L.tileLayer.wms("http://noproxy.kabus.ga:2139?", {
+        attribution: "&copy; geoportal.gov.pl",
+        "maxZoom": 22,
+        layers: 'Raster',
+        detectRetina: true
+    });
+    let geoportal_fallback = L.tileLayer.wms("https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORTO/WMS/StandardResolution?", {
         attribution: "&copy; geoportal.gov.pl",
         "maxZoom": 22,
         layers: 'Raster',
@@ -144,6 +150,7 @@ window.onload = function() {
     let baseMaps = {
         "Kielce 2019": kielce19,
         "Geoportal.gov.pl": geoportal,
+        "Geoportal.gov.pl fallback": geoportal_fallback,
         "OpenStreetMap": osm,
     };
     let overlayMaps = {
