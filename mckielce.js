@@ -149,14 +149,21 @@ window.onload = function() {
     });
     let baseMaps = {
         "Kielce 2019": kielce19,
-        "Geoportal.gov.pl": geoportal,
-        "Geoportal.gov.pl fallback": geoportal_fallback,
         "OpenStreetMap": osm,
     };
     let overlayMaps = {
         "Minecraft 04.07.2021 20:20": ov
     }
-    L.control.layers(baseMaps,overlayMaps).addTo(map);
+    let layers = L.control.layers(baseMaps,overlayMaps).addTo(map);
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(()=>controller.abort(), 5000);
+    fetch("http://noproxy.kabus.ga:2139", {signal: controller.signal}).then(response => {
+        layers.addBaseLayer(geoportal,"Geoportal.gov.pl");
+    }).catch(()=>{
+        layers.addBaseLayer(geoportal_fallback,"Geoportal.gov.pl (Fallback)");
+    });
+
     L.easyBar([btns.addMarker,btns.addLine]).addTo(map);
     markers=L.layerGroup().addTo(map);
     polyline.addTo(map);
