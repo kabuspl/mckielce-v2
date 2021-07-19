@@ -158,11 +158,17 @@ window.onload = function() {
 
     const controller = new AbortController();
     const timeoutId = setTimeout(()=>controller.abort(), 5000);
-    fetch("http://noproxy.kabus.ga:2139", {signal: controller.signal}).then(response => {
-        layers.addBaseLayer(geoportal,"Geoportal.gov.pl");
-    }).catch(()=>{
+    let imgurl = "http://noproxy.kabus.ga:2139/?&service=WMS&request=GetMap&layers=Raster&styles=&format=image%2Fjpeg&transparent=false&version=1.1.1&width=256&height=256&srs=EPSG%3A3857&bbox=2304117.7806283534,6584591.364598226,2309009.7504386045,6589483.334408476";
+    let img2 = new Image();
+    img2.src=imgurl;
+    img2.addEventListener("error",() => {
         layers.addBaseLayer(geoportal_fallback,"Geoportal.gov.pl (Fallback)");
     });
+    img2.addEventListener("load",() => {
+        layers.addBaseLayer(geoportal,"Geoportal.gov.pl");
+    });
+    
+    
 
     L.easyBar([btns.addMarker,btns.addLine]).addTo(map);
     markers=L.layerGroup().addTo(map);
